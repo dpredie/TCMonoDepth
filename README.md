@@ -7,7 +7,10 @@
 
 **<p align="center">TCMonoDepth 是一个为任意视频估计稳定的深度值的模型。</p>**
 
-https://colab.research.google.com/github/dpredie/TCMonoDepth/blob/main/TCMonoDepth.ipynb
+### **(Colab for video files!)** 
+* [Google Colaboratory notebook](./TCMonoDepth.ipynb) is now available.  [Oct 2021]   [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dpredie/TCMonoDepth/blob/main/TCMonoDepth.ipynb)
+
+
 
 
 ## Usage ##
