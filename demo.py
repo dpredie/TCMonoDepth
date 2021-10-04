@@ -73,7 +73,7 @@ def run(args):
 
     transform = Compose([
         Resize(
-            args.resize_size[0],  #width
+            args.resize_size[1],  #width
             args.resize_size[1],  #height
             resize_target=None,
             keep_aspect_ratio=True,
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('--resize_size',
                         type=int,
                         default=384,
-                        help="spatial dimension to resize input (default: small model:256, large model:384)")
+                        help="spatial dimension to resize input (default small model256, large model384)")
 
     args = parser.parse_args()
 
