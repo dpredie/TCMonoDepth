@@ -18,10 +18,10 @@ outputfile= "/content/output/output.mp4"
 fps=24.0
 
 
-def write_video(filename, output_list, fpsz):
+def write_video(filename, output_list):
     assert (len(output_list) > 0)
     h, w = output_list[0].shape[0], output_list[0].shape[1]
-    writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'mp4v'), fpsz, (w, h))
+    writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 
     for img in output_list:
         writer.write(img)
@@ -105,70 +105,73 @@ def run(args):
     cap = cv2.VideoCapture(inputfile)
 
     print(cap)
-    #out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)),int(cap.get(4))))
+    out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)),int(cap.get(4))))
 
     if (cap.isOpened()== False):
       print("Error opening video stream or file")
 
+    framecnt = 0
+    while cap.isOpened():
 
-    output_list = []
-    with torch.no_grad():
-      framecnt = 0
-      while cap.isOpened():
-        # Read frame from the video
-        ret, img = cap.read()
-        if framecnt == 0:
-          img0 = img
-      
-        if ret:  
-          start = time.time()
-      
-        
-          frame = img
-          #frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
-          frame = transform({"image": frame})["image"]
-          frame = torch.from_numpy(frame).to(device).unsqueeze(0)
+      # Read frame from the video
+      ret, img = cap.read()
+      if framecnt == 0:
+        img0 = img
+     
 
-          prediction = model.forward(frame)
-          print(prediction.min(), prediction.max())
-          prediction = (torch.nn.functional.interpolate(
-              prediction,
-              size=img0.shape[:2],
-              mode="bicubic",
-              align_corners=False,
-          ).squeeze().cpu().numpy())
-          output_list.append(prediction)
+      if ret:  
+        start = time.time()
+        #now = datetime.datetime.now()
+        # Estimate depth
+        # colorDepth = depthEstimator.estimateDepth(img)
+        output_list = []
+        with torch.no_grad():
+            #for f in tqdm(path_lists[i]):
+                frame = img
+                #frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
+                frame = transform({"image": frame})["image"]
+                frame = torch.from_numpy(frame).to(device).unsqueeze(0)
 
+                prediction = model.forward(frame)
+                print(prediction.min(), prediction.max())
+                prediction = (torch.nn.functional.interpolate(
+                    prediction,
+                    size=img0.shape[:2],
+                    mode="bicubic",
+                    align_corners=False,
+                ).squeeze().cpu().numpy())
+                output_list.append(prediction)
 
-          end = time.time()
-          print("processed frame: "+str(framecnt)+" "+str("%.2f" % (end-start))+"s")
-          framecnt+=1
-        else:
-          print("image empty - exiting")    
-          break  
-        # Press key q to stop
-        if cv2.waitKey(1) == ord('q'):
-          break
+        # save output
+        output_name = os.path.join(args.output_file)
+        output_list = [process_depth(out) for out in output_list]
 
-      # save output
-      #output_name = os.path.join(args.output_file, scene_names[i] + '.mp4')
-      output_list = [process_depth(out) for out in output_list]
+        color_list = []
+        for j in range(len(output_list)):
+            frame_color = cv2.applyColorMap(output_list[j], cv2.COLORMAP_INFERNO)
+            color_list.append(frame_color)
 
-      color_list = []
-      for j in range(len(output_list)):
-          frame_color = cv2.applyColorMap(output_list[j], cv2.COLORMAP_INFERNO)
-          color_list.append(frame_color)
-          print("generating Depth Color frame "+str(j) ) 
-
-      write_video(outputfile, color_list, fps)
-      cap.release()
+        write_video(output_name, color_list)
 
 
-      cv2.destroyAllWindows()    
-    print(args.output + " Done.")
+        img_out = img
 
+        out.write(img_out)
+        end = time.time()
+        print("processed frame: "+str(framecnt)+" "+str("%.2f" % (end-start))+"s")
+        framecnt+=1
+      else:
+        print("image empty - exiting")    
+        break  
+      # Press key q to stop
+      if cv2.waitKey(1) == ord('q'):
+        break
 
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()      
 
+    print(outputfile + " Done.")
 
 
 if __name__ == "__main__":
