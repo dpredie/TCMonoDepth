@@ -14,7 +14,7 @@ from networks.transforms import PrepareForNet
 from tqdm import tqdm
 
 inputfile = "/content/inputs/input.mp4"
-outputfolder= "/content/results"
+outputfile= "/content/output/output.mp4"
 fps=24.0
 
 
@@ -171,7 +171,7 @@ def run(args):
     out.release()
     cv2.destroyAllWindows()      
 
-    print(args.output + " Done.")
+    print(outputfile + " Done.")
 
 
 if __name__ == "__main__":
