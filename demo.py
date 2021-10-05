@@ -142,7 +142,7 @@ def run(args):
                 output_list.append(prediction)
 
         # save output
-        output_name = os.path.join(args.output, scene_names[i] + '.mp4')
+        output_name = os.path.join(args.output_file)
         output_list = [process_depth(out) for out in output_list]
 
         color_list = []
