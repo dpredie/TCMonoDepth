@@ -114,7 +114,7 @@ def run(args):
 
       # Read frame from the video
       ret, img = cap.read()
-      if framecnt == 0
+      if framecnt == 0:
         img0 = img
      
 
