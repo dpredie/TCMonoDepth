@@ -7,7 +7,7 @@ import os
 import cv2
 import torch
 from torchvision.transforms import Compose
-
+import time
 from networks.transforms import Resize
 from networks.transforms import PrepareForNet
 from tqdm import tqdm
