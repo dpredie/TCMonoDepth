@@ -104,7 +104,7 @@ def run(args):
     cap = cv2.VideoCapture(inputfile)
 
     print(cap)
-    out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)*tile),int(cap.get(4))))
+    out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)),int(cap.get(4))))
 
     if (cap.isOpened()== False):
       print("Error opening video stream or file")
