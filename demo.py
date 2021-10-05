@@ -124,7 +124,7 @@ def run(args):
         #now = datetime.datetime.now()
         # Estimate depth
         # colorDepth = depthEstimator.estimateDepth(img)
-        
+        output_list = []
         with torch.no_grad():
             #for f in tqdm(path_lists[i]):
                 frame = img
