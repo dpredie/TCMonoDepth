@@ -8,6 +8,7 @@ import cv2
 import torch
 from torchvision.transforms import Compose
 import time
+
 from networks.transforms import Resize
 from networks.transforms import PrepareForNet
 from tqdm import tqdm
@@ -125,11 +126,11 @@ def run(args):
         # colorDepth = depthEstimator.estimateDepth(img)
         
         with torch.no_grad():
-            for f in tqdm(path_lists[i]):
+            #for f in tqdm(path_lists[i]):
                 frame = img
                 #frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
-                #frame = transform({"image": frame})["image"]
-                #frame = torch.from_numpy(frame).to(device).unsqueeze(0)
+                frame = transform({"image": frame})["image"]
+                frame = torch.from_numpy(frame).to(device).unsqueeze(0)
 
                 prediction = model.forward(frame)
                 print(prediction.min(), prediction.max())
