@@ -95,17 +95,11 @@ def run(args):
     ])
 
     # get input
-    #path_lists, scene_names = load_video_paths(args)
-
- 
-    # prepare output folder
-    #os.makedirs(args.output, exist_ok=True)
 
     # Initialize video
     cap = cv2.VideoCapture(inputfile)
 
     print(cap)
-    #out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)),int(cap.get(4))))
 
     if (cap.isOpened()== False):
       print("Error opening video stream or file")
@@ -125,7 +119,6 @@ def run(args):
       
         
           frame = img
-          #frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
           frame = transform({"image": frame})["image"]
           frame = torch.from_numpy(frame).to(device).unsqueeze(0)
 
@@ -151,7 +144,6 @@ def run(args):
           break
 
       # save output
-      #output_name = os.path.join(args.output_file, scene_names[i] + '.mp4')
       output_list = [process_depth(out) for out in output_list]
 
       color_list = []
@@ -181,8 +173,6 @@ if __name__ == "__main__":
 
     parser.add_argument('--model', default='large', choices=['small', 'large'], help='size of the model')
     parser.add_argument('--resume', type=str, required=True, help='path to checkpoint file')
-    #parser.add_argument('--input', default='./videos', type=str, help='video root path')
-    #parser.add_argument('--output', default='./output', type=str, help='path to save output')
     parser.add_argument('--resize_size',
                         type=int,
                         default=384,
