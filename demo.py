@@ -41,6 +41,7 @@ def load_video_paths(args):
         frame_names = sorted(os.listdir(os.path.join(root_path, scene)))
         frame_paths = [os.path.join(root_path, scene, name) for name in frame_names]
         path_lists.append(frame_paths)
+        print("Device: %s" % frame_paths)
 
     return path_lists, scene_names
 
