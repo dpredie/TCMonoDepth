@@ -12,12 +12,8 @@ from networks.transforms import Resize
 from networks.transforms import PrepareForNet
 from tqdm import tqdm
 
-inputfile = "/content/inputs/input.mp4"
-outputfolder= "/content/results"
-fps=24.0
 
-
-def write_video(filename, output_list):
+def write_video(filename, output_list, fps=24):
     assert (len(output_list) > 0)
     h, w = output_list[0].shape[0], output_list[0].shape[1]
     writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
@@ -57,10 +53,6 @@ def run(args):
     device = torch.device("cuda")
     print("Device: %s" % device)
 
-    fps = args.fps
-    outputfile = args.output_file
-    inputfile = args.input_file
-
     # load network
     print("Creating model...")
     if args.model == 'large':
@@ -94,42 +86,21 @@ def run(args):
     ])
 
     # get input
-    #path_lists, scene_names = load_video_paths(args)
+    path_lists, scene_names = load_video_paths(args)
 
- 
     # prepare output folder
-    #os.makedirs(args.output, exist_ok=True)
+    os.makedirs(args.output, exist_ok=True)
 
-    # Initialize video
-    cap = cv2.VideoCapture(inputfile)
-
-    print(cap)
-    out = cv2.VideoWriter(outputfile,cv2.VideoWriter_fourcc(*'MP4V'), fps,(int(cap.get(3)*tile),int(cap.get(4))))
-
-    if (cap.isOpened()== False):
-      print("Error opening video stream or file")
-
-    framecnt = 0
-    while cap.isOpened():
-
-      # Read frame from the video
-      ret, img = cap.read()
-      if framecnt == 0
-        img0 = img
-     
-
-      if ret:  
-        start = time.time()
-        #now = datetime.datetime.now()
-        # Estimate depth
-        # colorDepth = depthEstimator.estimateDepth(img)
-        
+    for i in range(len(path_lists)):
+        print("Prcessing: %s" % scene_names[i])
+        img0 = cv2.imread(path_lists[i][0])
+        # predict depth
+        output_list = []
         with torch.no_grad():
             for f in tqdm(path_lists[i]):
-                frame = img
-                #frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
-                #frame = transform({"image": frame})["image"]
-                #frame = torch.from_numpy(frame).to(device).unsqueeze(0)
+                frame = cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB)
+                frame = transform({"image": frame})["image"]
+                frame = torch.from_numpy(frame).to(device).unsqueeze(0)
 
                 prediction = model.forward(frame)
                 print(prediction.min(), prediction.max())
@@ -152,24 +123,6 @@ def run(args):
 
         write_video(output_name, color_list)
 
-
-        img_out = img
-
-        out.write(img_out)
-        end = time.time()
-        print("processed frame: "+str(framecnt)+" "+str("%.2f" % (end-start))+"s")
-        framecnt+=1
-      else:
-        print("image empty - exiting")    
-        break  
-      # Press key q to stop
-      if cv2.waitKey(1) == ord('q'):
-        break
-
-    cap.release()
-    out.release()
-    cv2.destroyAllWindows()      
-
     print(args.output + " Done.")
 
 
@@ -183,15 +136,12 @@ if __name__ == "__main__":
 
     parser.add_argument('--model', default='large', choices=['small', 'large'], help='size of the model')
     parser.add_argument('--resume', type=str, required=True, help='path to checkpoint file')
-    #parser.add_argument('--input', default='./videos', type=str, help='video root path')
-    #parser.add_argument('--output', default='./output', type=str, help='path to save output')
+    parser.add_argument('--input', default='./videos', type=str, help='video root path')
+    parser.add_argument('--output', default='./output', type=str, help='path to save output')
     parser.add_argument('--resize_size',
                         type=int,
                         default=384,
                         help="spatial dimension to resize input (default small model256, large model384)")
-    parser.add_argument('--output_file', type=str, required=True, help='copy path from output directory')
-    parser.add_argument('--input_file', type=str, required=True, help='copy path from input file')
-    parser.add_argument('--fps', type=float, required=True, help='fps value')                        
 
     args = parser.parse_args()
 
