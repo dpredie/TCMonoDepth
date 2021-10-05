@@ -165,7 +165,7 @@ def run(args):
 
 
       cv2.destroyAllWindows()    
-    print(args.outputfile + " Done.")
+    print(outputfile + " Done.")
 
 
 
